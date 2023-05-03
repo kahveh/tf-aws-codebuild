@@ -1,4 +1,4 @@
-variable "ecr_arn" {
+variable "ecr_name" {
   type = string
 }
 
