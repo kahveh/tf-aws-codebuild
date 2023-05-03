@@ -30,12 +30,19 @@ data "aws_iam_policy_document" "codebuild_policy" {
     actions = [
       "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
-      "ecr:GetAuthorizationToken",
       "ecr:InitiateLayerUpload",
       "ecr:PutImage",
       "ecr:UploadLayerPart"
     ]
     resources = [data.aws_ecr_repository.selected.arn]
+  }
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken"
+    ]
+    resources = ["*"]
   }
 }
 
