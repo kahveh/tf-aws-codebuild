@@ -1,5 +1,8 @@
+locals {
+  codebuild_project_name = "docker-build"  
+}
 resource "aws_codebuild_project" "docker_build" {
-  name          = "docker-build"
+  name          = local.codebuild_project_name
   description   = "Builds Docker images and pushes them to ECR"
   build_timeout = "20"
   service_role  = aws_iam_role.codebuild_role.arn
