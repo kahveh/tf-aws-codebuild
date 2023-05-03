@@ -20,6 +20,16 @@ resource "aws_codebuild_project" "docker_build" {
     privileged_mode             = true
 
     environment_variable {
+      name  = "AWS_DEFAULT_REGION"
+      value = data.aws_region.current.name
+    }
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = data.aws_caller_identity.current.account_id
+    }
+
+    environment_variable {
       name  = "ECR_REPOSITORY"
       value = data.aws_ecr_repository.selected.repository_url
     }

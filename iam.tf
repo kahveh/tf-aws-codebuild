@@ -23,6 +23,20 @@ data "aws_iam_policy_document" "codebuild_policy" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:CompleteLayerUpload",
+      "ecr:GetAuthorizationToken",
+      "ecr:InitiateLayerUpload",
+      "ecr:PutImage",
+      "ecr:UploadLayerPart"
+    ]
+    resources = [data.aws_ecr_repository.selected.arn]
+  }
 }
 
 resource "aws_iam_role" "codebuild_role" {
