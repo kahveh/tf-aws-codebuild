@@ -36,6 +36,7 @@ data "aws_iam_policy_document" "codebuild_policy" {
     ]
     resources = [data.aws_ecr_repository.selected.arn]
   }
+  
   statement {
     effect = "Allow"
 
