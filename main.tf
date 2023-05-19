@@ -57,10 +57,5 @@ resource "aws_codebuild_webhook" "webhook" {
       type = "EVENT"
       pattern = "PUSH"
     }
-
-    filter {
-      type = "BASE_REF"
-      pattern = var.base_ref != "" ? var.base_ref : "main"
-    }
   }
 }
