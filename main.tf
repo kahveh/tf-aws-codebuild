@@ -1,5 +1,5 @@
 locals {
-  codebuild_project_name = "docker-build"
+  codebuild_project_name = var.name != "" ? var.name : "docker-build"
 }
 
 resource "aws_codebuild_project" "docker_build" {
