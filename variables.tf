@@ -7,6 +7,16 @@ variable "name" {
   default = ""
 }
 
+variable "create_webhook" {
+  type = bool
+  default = true
+}
+
+variable "base_ref" {
+  type = string
+  default = ""
+}
+
 variable "image_tag" {
   type    = string
   default = "latest"

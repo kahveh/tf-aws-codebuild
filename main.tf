@@ -44,5 +44,23 @@ resource "aws_codebuild_project" "docker_build" {
     type            = "GITHUB"
     location        = var.source_repository
     git_clone_depth = 1
+    report_build_status = true
+  }
+}
+
+resource "aws_codebuild_webhook" "webhook" {
+  count = var.create_webhook ? 1 : 0
+  project_name = aws_codebuild_project.docker_build.name
+  build_type = "BUILD"
+  filter_group {
+    filter {
+      type = "EVENT"
+      pattern = "PUSH"
+    }
+
+    filter {
+      type = "BASE_REF"
+      pattern = var.base_ref != "" ? var.base_ref : "main"
+    }
   }
 }
