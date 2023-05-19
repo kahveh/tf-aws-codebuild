@@ -29,6 +29,7 @@ data "aws_iam_policy_document" "codebuild_policy" {
 
     actions = [
       "ecr:BatchGetImage",
+      "ecr:GetDownloadUrlForLayer",
       "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
       "ecr:InitiateLayerUpload",
