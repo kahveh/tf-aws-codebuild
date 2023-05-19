@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "codebuild_baseref_policy" {
       "ecr:BatchCheckLayerAvailability"
     ]
 
-    resources = [for s in values(data.aws_ecr_repository.base_ref) : s.arn]
+    resources = [for s in data.aws_ecr_repository.base_ref : s.arn]
   }
 }
 
