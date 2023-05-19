@@ -11,6 +11,19 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "codebuild_baseref_policy" {
+  count = var.base_ref != "" ? 1 : 0
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchCheckLayerAvailability"
+    ]
+    resources = [data.aws_ecr_repository.base_ref[0].arn]
+  }
+}
 
 data "aws_iam_policy_document" "codebuild_policy" {
   statement {
@@ -22,18 +35,6 @@ data "aws_iam_policy_document" "codebuild_policy" {
       "logs:PutLogEvents",
     ]
     resources = ["*"]
-  }
-
-  statement {
-    count = var.base_ref != "" ? 1 : 0
-    effect = "Allow"
-
-    actions = [
-      "ecr:BatchGetImage",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchCheckLayerAvailability"
-    ]
-    resources = [data.aws_ecr_repository.base_ref[0].arn]
   }
   
   statement {
@@ -66,11 +67,19 @@ resource "aws_iam_role" "codebuild_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
-  name = "cloudwatch-logs-${local.codebuild_project_name}-policy"
+resource "aws_iam_role_policy" "codebuild_policy" {
+  name = "codebuild-${local.codebuild_project_name}-policy"
   role = aws_iam_role.codebuild_role.id
 
   policy = data.aws_iam_policy_document.codebuild_policy.json
+}
+
+resource "aws_iam_role_policy" "codebuild_baseref_policy" {
+  count = var.base_ref != "" ? 1 : 0
+  name = "codebuild-baseref-${local.codebuild_project_name}-policy"
+  role = aws_iam_role.codebuild_role.id
+
+  policy = data.aws_iam_policy_document.codebuild_baseref_policy[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "codebuild_policy" {
