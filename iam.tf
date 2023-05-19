@@ -12,7 +12,8 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 data "aws_iam_policy_document" "codebuild_baseref_policy" {
-  count = var.base_ref != "" ? 1 : 0
+  count = length(var.base_refs) > 0 ? 1 : 0
+
   statement {
     effect = "Allow"
 
@@ -21,7 +22,8 @@ data "aws_iam_policy_document" "codebuild_baseref_policy" {
       "ecr:GetDownloadUrlForLayer",
       "ecr:BatchCheckLayerAvailability"
     ]
-    resources = [data.aws_ecr_repository.base_ref[0].arn]
+
+    resources = [for s in values(data.aws_ecr_repository.base_ref) : s.arn]
   }
 }
 
@@ -75,7 +77,7 @@ resource "aws_iam_role_policy" "codebuild_policy" {
 }
 
 resource "aws_iam_role_policy" "codebuild_baseref_policy" {
-  count = var.base_ref != "" ? 1 : 0
+  count  = length(var.base_refs) > 0 ? 1 : 0
   name = "codebuild-baseref-${local.codebuild_project_name}-policy"
   role = aws_iam_role.codebuild_role.id
 

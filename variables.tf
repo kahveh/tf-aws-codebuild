@@ -12,9 +12,10 @@ variable "create_webhook" {
   default = true
 }
 
-variable "base_ref" {
-  type = string
-  default = ""
+variable "base_refs" {
+  description = "List of ECR repository names"
+  type        = list(string)
+  default = []
 }
 
 variable "image_tag" {
