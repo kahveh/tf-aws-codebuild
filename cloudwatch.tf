@@ -4,8 +4,8 @@ locals {
 
 resource "aws_cloudwatch_event_rule" "nightly_build" {
   count               = local.build_periodically
-  name                = "nightly-docker-build"
-  description         = "Triggers the CodeBuild project to build and push Docker images nightly"
+  name                = "nightly-${local.codebuild_project_name}-build"
+  description         = "Triggers the CodeBuild project to build and push ${local.codebuild_project_name} images nightly"
   schedule_expression = "cron(0 0 * * ? *)" # Triggered nightly at midnight
 }
 

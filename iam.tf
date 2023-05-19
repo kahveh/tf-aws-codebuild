@@ -48,12 +48,12 @@ data "aws_iam_policy_document" "codebuild_policy" {
 }
 
 resource "aws_iam_role" "codebuild_role" {
-  name               = "codebuild-docker-build-role"
+  name               = "codebuild-${local.codebuild_project_name}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
-  name = "cloudwatch-logs-create-policy"
+  name = "cloudwatch-logs-${local.codebuild_project_name}-policy"
   role = aws_iam_role.codebuild_role.id
 
   policy = data.aws_iam_policy_document.codebuild_policy.json
