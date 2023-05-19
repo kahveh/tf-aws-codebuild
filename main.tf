@@ -40,6 +40,11 @@ resource "aws_codebuild_project" "docker_build" {
     }
   }
 
+  cache {
+    type = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE"]
+  }
+  
   source {
     type            = "GITHUB"
     location        = var.source_repository
