@@ -25,6 +25,18 @@ data "aws_iam_policy_document" "codebuild_policy" {
   }
 
   statement {
+    count = var.base_ref != "" ? 1 : 0
+    effect = "Allow"
+
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchCheckLayerAvailability"
+    ]
+    resources = [data.aws_ecr_repository.base_ref[0].arn]
+  }
+  
+  statement {
     effect = "Allow"
 
     actions = [
