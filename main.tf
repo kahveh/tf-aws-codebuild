@@ -1,65 +1,53 @@
 locals {
-  codebuild_project_name = var.name != "" ? var.name : "docker-build"
+  codebuild_project_name = var.name != "" ? var.name : "code-build"
 }
 
-resource "aws_codebuild_project" "docker_build" {
+resource "aws_codebuild_project" "code_build" {
   name          = local.codebuild_project_name
-  description   = "Builds Docker images and pushes them to ECR"
-  build_timeout = "20"
+  description   = var.description
+  build_timeout = var.build_timeout
   service_role  = aws_iam_role.codebuild_role.arn
 
   artifacts {
-    type = "NO_ARTIFACTS"
+    type = var.artifact_type
   }
 
   environment {
-    compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/standard:5.0"
-    type                        = "LINUX_CONTAINER"
-    image_pull_credentials_type = "CODEBUILD"
-    privileged_mode             = true
+    compute_type                = var.environment_compute_type
+    image                       = var.environment_image
+    type                        = var.environment_type
+    image_pull_credentials_type = var.image_pull_credentials_type
+    privileged_mode             = var.privileged_mode
 
-    environment_variable {
-      name  = "AWS_DEFAULT_REGION"
-      value = data.aws_region.current.name
-    }
-
-    environment_variable {
-      name  = "AWS_ACCOUNT_ID"
-      value = data.aws_caller_identity.current.account_id
-    }
-
-    environment_variable {
-      name  = "ECR_REPOSITORY"
-      value = data.aws_ecr_repository.selected.repository_url
-    }
-
-    environment_variable {
-      name  = "IMAGE_TAG"
-      value = var.image_tag
+    dynamic "environment_variable" {
+      for_each = var.environment_variables
+      content {
+        name  = environment_variable.key
+        value = environment_variable.value
+      }
     }
   }
 
   cache {
-    type = "LOCAL"
-    modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE"]
+    type  = var.cache_type
+    modes = var.cache_modes
   }
-  
+
   source {
-    type            = "GITHUB"
-    location        = var.source_repository
-    git_clone_depth = 1
-    report_build_status = true
+    type                = var.source_type
+    location            = var.source_repository
+    git_clone_depth     = var.git_clone_depth
+    report_build_status = var.report_build_status
   }
 }
 
 resource "aws_codebuild_webhook" "webhook" {
-  count = var.create_webhook ? 1 : 0
+  count        = var.create_webhook ? 1 : 0
   project_name = aws_codebuild_project.docker_build.name
-  build_type = "BUILD"
+  build_type   = "BUILD"
   filter_group {
     filter {
-      type = "EVENT"
+      type    = "EVENT"
       pattern = "PUSH"
     }
   }

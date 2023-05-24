@@ -11,22 +11,6 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "codebuild_baseref_policy" {
-  count = length(var.base_refs) > 0 ? 1 : 0
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ecr:BatchGetImage",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchCheckLayerAvailability"
-    ]
-
-    resources = [for s in data.aws_ecr_repository.base_ref : s.arn]
-  }
-}
-
 data "aws_iam_policy_document" "codebuild_policy" {
   statement {
     effect = "Allow"
@@ -38,22 +22,39 @@ data "aws_iam_policy_document" "codebuild_policy" {
     ]
     resources = ["*"]
   }
-  
-  statement {
-    effect = "Allow"
 
-    actions = [
-      "ecr:BatchGetImage",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:CompleteLayerUpload",
-      "ecr:InitiateLayerUpload",
-      "ecr:PutImage",
-      "ecr:UploadLayerPart"
-    ]
-    resources = [data.aws_ecr_repository.selected.arn]
+  dynamic "statement" {
+    for_each = data.aws_ecr_repository.base_ref
+    content {
+      effect = "Allow"
+
+      actions = [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchCheckLayerAvailability"
+      ]
+      resources = [statement.value.arn]
+    }
   }
-  
+
+  dynamic "statement" {
+    for_each = data.aws_ecr_repository.selected
+    content {
+      effect = "Allow"
+
+      actions = [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:CompleteLayerUpload",
+        "ecr:InitiateLayerUpload",
+        "ecr:PutImage",
+        "ecr:UploadLayerPart"
+      ]
+      resources = [statement.value.arn]
+    }
+  }
+
   statement {
     effect = "Allow"
 
@@ -63,6 +64,7 @@ data "aws_iam_policy_document" "codebuild_policy" {
     resources = ["*"]
   }
 }
+
 
 resource "aws_iam_role" "codebuild_role" {
   name               = "codebuild-${local.codebuild_project_name}-role"
@@ -74,14 +76,6 @@ resource "aws_iam_role_policy" "codebuild_policy" {
   role = aws_iam_role.codebuild_role.id
 
   policy = data.aws_iam_policy_document.codebuild_policy.json
-}
-
-resource "aws_iam_role_policy" "codebuild_baseref_policy" {
-  count  = length(var.base_refs) > 0 ? 1 : 0
-  name = "codebuild-baseref-${local.codebuild_project_name}-policy"
-  role = aws_iam_role.codebuild_role.id
-
-  policy = data.aws_iam_policy_document.codebuild_baseref_policy[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "codebuild_policy" {

@@ -1,9 +1,6 @@
-data "aws_caller_identity" "current" {}
-
-data "aws_region" "current" {}
-
 data "aws_ecr_repository" "selected" {
-  name = var.ecr_name
+  count = var.ecr_name != "" ? 1 : 0
+  name  = var.ecr_name
 }
 
 data "aws_ecr_repository" "base_ref" {
