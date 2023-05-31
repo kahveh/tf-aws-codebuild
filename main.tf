@@ -43,7 +43,7 @@ resource "aws_codebuild_project" "code_build" {
 
 resource "aws_codebuild_webhook" "webhook" {
   count        = var.create_webhook ? 1 : 0
-  project_name = aws_codebuild_project.docker_build.name
+  project_name = aws_codebuild_project.code_build.name
   build_type   = "BUILD"
   filter_group {
     filter {
