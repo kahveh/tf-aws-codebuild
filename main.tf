@@ -39,6 +39,11 @@ resource "aws_codebuild_project" "code_build" {
     git_clone_depth     = var.git_clone_depth
     report_build_status = var.report_build_status
   }
+
+  build_batch_config {
+    service_role    = aws_iam_role.codebuild_batch_role.arn
+    timeout_in_mins = 60
+  }
 }
 
 resource "aws_codebuild_webhook" "webhook" {

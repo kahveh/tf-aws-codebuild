@@ -82,3 +82,28 @@ resource "aws_iam_role_policy_attachment" "codebuild_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
   role       = aws_iam_role.codebuild_role.name
 }
+
+data "aws_iam_policy_document" "codebuild_batch_policy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "codebuild:StartBuild",
+      "codebuild:StopBuild",
+      "codebuild:RetryBuild"
+    ]
+    resources = [aws_codebuild_project.code_build.arn]
+  }
+}
+
+resource "aws_iam_role" "codebuild_batch_role" {
+  name               = "codebuild-${local.codebuild_project_name}-batch-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy" "codebuild_batch_policy" {
+  name = "codebuild-${local.codebuild_project_name}-policy"
+  role = aws_iam_role.codebuild_role.id
+
+  policy = data.aws_iam_policy_document.codebuild_batch_policy.json
+}
