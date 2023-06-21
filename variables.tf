@@ -18,6 +18,11 @@ variable "create_webhook" {
   default = true
 }
 
+variable "create_batch_configuration" {
+  type    = bool
+  default = false
+}
+
 variable "base_refs" {
   description = "List of ECR repository names"
   type        = list(string)

@@ -40,9 +40,12 @@ resource "aws_codebuild_project" "code_build" {
     report_build_status = var.report_build_status
   }
 
-  build_batch_config {
-    service_role    = aws_iam_role.codebuild_batch_role.arn
-    timeout_in_mins = 60
+  dynamic "build_batch_config" {
+    for_each = var.create_batch_configuration ? [1] : []
+    content {
+      service_role    = aws_iam_role.codebuild_batch_role.arn
+      timeout_in_mins = 60
+    }
   }
 }
 

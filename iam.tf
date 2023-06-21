@@ -97,13 +97,15 @@ data "aws_iam_policy_document" "codebuild_batch_policy" {
 }
 
 resource "aws_iam_role" "codebuild_batch_role" {
+  count              = var.create_batch_configuration ? 1 : 0
   name               = "codebuild-${local.codebuild_project_name}-batch-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy" "codebuild_batch_policy" {
-  name = "codebuild-${local.codebuild_project_name}-batch-policy"
-  role = aws_iam_role.codebuild_batch_role.id
+  count = var.create_batch_configuration ? 1 : 0
+  name  = "codebuild-${local.codebuild_project_name}-batch-policy"
+  role  = aws_iam_role.codebuild_batch_role[0].id
 
   policy = data.aws_iam_policy_document.codebuild_batch_policy.json
 }
