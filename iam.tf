@@ -103,7 +103,7 @@ resource "aws_iam_role" "codebuild_batch_role" {
 
 resource "aws_iam_role_policy" "codebuild_batch_policy" {
   name = "codebuild-${local.codebuild_project_name}-policy"
-  role = aws_iam_role.codebuild_role.id
+  role = aws_iam_role.codebuild_batch_role.id
 
   policy = data.aws_iam_policy_document.codebuild_batch_policy.json
 }
